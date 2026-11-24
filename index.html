@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3C</title>
+<style>
+  :root{
+    --bg:#f6f6f3; --ink:#16161a; --muted:#8a8a91; --line:#e6e6e1; --card:#fff;
+    --hl:#fff1b8; --ok:#1f9d55; --okbg:#dcf5e6; --warn:#d98a06; --warnbg:#fdf0d4;
+    --bad:#d93b3b; --badbg:#fde1e1;
+    --ease:cubic-bezier(.22,.8,.24,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--ink);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;user-select:none;cursor:default}
+  body.idle{cursor:none}
+
+  .card{position:absolute;top:50%;background:var(--card);border-radius:1.6vw;
+    box-shadow:0 .2vw .6vw rgba(0,0,0,.04),0 1.6vw 4vw rgba(0,0,0,.07);
+    transition:left .9s var(--ease),opacity .6s var(--ease),transform .9s var(--ease)}
+
+  /* AI answer */
+  #ai{left:50%;width:37vw;padding:2.6vw 2.8vw;transform:translate(-50%,-50%) translateY(1.5vw);opacity:0}
+  .s1 #ai,.s2 #ai{opacity:1;transform:translate(-50%,-50%)}
+  .s3 #ai,.s4 #ai,.s5 #ai,.s6 #ai{opacity:1;left:24%;transform:translate(-50%,-50%)}
+  .s7 #ai,.s8 #ai{opacity:0;left:50%;transform:translate(-50%,-50%) scale(.97)}
+  .avatar{width:2.4vw;height:2.4vw;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin-bottom:1.4vw}
+  .avatar svg{width:1.3vw;height:1.3vw}
+  #ai p{font-size:1.75vw;line-height:1.6}
+  #ai .c{display:block;width:fit-content;margin:0 0 .7vw -.15vw}
+  .w{opacity:0;transition:opacity .35s ease}
+  .shown .w{opacity:1}
+  .c{border-radius:.35vw;padding:.1vw .15vw;margin:0 -.15vw;
+     background-image:linear-gradient(var(--hl),var(--hl));background-repeat:no-repeat;
+     background-size:0% 100%;transition:background-size .6s var(--ease),background-color .4s}
+  .hl .c{background-size:100% 100%}
+  .c.ok{background-image:linear-gradient(var(--okbg),var(--okbg))}
+  .c.warn{background-image:linear-gradient(var(--warnbg),var(--warnbg))}
+  .c.bad{background-image:linear-gradient(var(--badbg),var(--badbg))}
+
+  /* Record */
+  #rec{left:77%;width:30vw;padding:2.4vw 2.6vw;opacity:0;transform:translate(-40%,-50%)}
+  .s3 #rec,.s4 #rec,.s5 #rec,.s6 #rec{opacity:1;transform:translate(-50%,-50%)}
+  .doc-h{display:flex;align-items:center;gap:.9vw;padding-bottom:1.4vw;border-bottom:1px solid var(--line);margin-bottom:1.3vw}
+  .doc-ic{width:2.4vw;height:2.4vw;border-radius:.6vw;background:#eef0f4;display:grid;place-items:center}
+  .doc-ic svg{width:1.3vw;height:1.3vw}
+  .doc-h b{display:block;font-size:1.35vw;font-weight:600}
+  .doc-h span{font-size:1vw;color:var(--muted)}
+  .row{display:flex;flex-direction:column;align-items:flex-start;gap:.25vw;font-size:1.4vw;padding:.6vw 0}
+  .row .k{color:var(--muted);font-size:.95vw;letter-spacing:.04em;text-transform:uppercase}
+  .t{border-radius:.35vw;padding:.1vw .4vw;margin-left:-.4vw;transition:background .5s,color .5s}
+  .t.ok{background:var(--okbg)} .t.warn{background:var(--warnbg)} .t.bad{background:var(--badbg)}
+  table{width:100%;border-collapse:collapse;margin-top:1.2vw;font-size:1vw;color:#55555c}
+  th{font-weight:500;color:var(--muted);text-align:left;padding:.5vw 0;border-bottom:1px solid var(--line)}
+  td{padding:.5vw 0;border-bottom:1px solid #f1f1ed}
+  th:last-child,td:last-child{text-align:right}
+  .tick{display:inline-block;width:.55vw;height:.55vw;border-radius:50%;background:#c9c9c2;margin-right:.5vw;vertical-align:middle}
+
+  /* Lines */
+  #wires{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+
+  /* Correct card */
+  #fix{left:50%;width:46vw;padding:2.6vw 3vw;opacity:0;transform:translate(-50%,-50%) translateY(1.5vw);pointer-events:none}
+  .s7 #fix{opacity:1;transform:translate(-50%,-50%)}
+  .item{display:flex;gap:1.3vw;align-items:flex-start;padding:1.1vw 0}
+  .item+.item{border-top:1px solid var(--line)}
+  .dot{flex:none;width:2.1vw;height:2.1vw;border-radius:50%;display:grid;place-items:center;margin-top:.25vw}
+  .dot svg{width:1.1vw;height:1.1vw}
+  .dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.bad{background:var(--bad)}
+  .old{font-size:1.6vw;line-height:1.45;position:relative;display:inline}
+  .old.strike{color:var(--muted);background-image:linear-gradient(currentColor,currentColor);
+    background-repeat:no-repeat;background-position:0 55%;background-size:0% 2px;transition:background-size .7s var(--ease) .3s}
+  .s7 .old.strike{background-size:100% 2px}
+  .new{font-size:1.6vw;line-height:1.45;font-weight:600;max-height:0;opacity:0;overflow:hidden;
+    transition:opacity .6s ease 1s,max-height .6s var(--ease) .9s}
+  .s7 .new{max-height:8vw;opacity:1}
+  .new.warn{color:#9a6200} .new.bad{color:#b42c2c}
+
+  /* Final slide */
+  #slide{left:50%;width:60vw;aspect-ratio:16/9;padding:4.2vw 4.8vw;border-radius:1vw;
+    opacity:0;transform:translate(-50%,-50%) scale(.96);display:flex;flex-direction:column}
+  .s8 #slide{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #slide h1{font-size:3vw;font-weight:700;letter-spacing:-.02em}
+  #slide .sub{font-size:1.3vw;color:var(--muted);margin-top:.4vw}
+  #slide ul{list-style:none;margin-top:2.6vw;display:flex;flex-direction:column;gap:1.3vw}
+  #slide li{font-size:1.75vw;line-height:1.4;padding-left:1.8vw;position:relative}
+  #slide li:before{content:"";position:absolute;left:0;top:.75vw;width:.6vw;height:.6vw;border-radius:50%;background:var(--ink)}
+  #slide li b{font-weight:700}
+  #slide .src{margin-top:auto;font-size:1.05vw;color:var(--muted);padding-top:1.2vw;border-top:1px solid var(--line)}
+  .s8 #slide li{animation:up .6s var(--ease) both}
+  .s8 #slide li:nth-child(2){animation-delay:.12s} .s8 #slide li:nth-child(3){animation-delay:.24s}
+  @keyframes up{from{opacity:0;transform:translateY(.8vw)}to{opacity:1;transform:none}}
+
+  .instant, .instant *{transition:none!important;animation:none!important}
+</style>
+</head>
+<body class="s0">
+
+<div id="ai" class="card">
+  <div class="avatar"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/></svg></div>
+  <p id="aitext"></p>
+</div>
+
+<div id="rec" class="card">
+  <div class="doc-h">
+    <div class="doc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#5b6170" stroke-width="2" stroke-linecap="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></div>
+    <div><b>Reading Club</b><span>School record · Sept–Nov 2026</span></div>
+  </div>
+  <div class="row"><span class="k">Meets</span><span class="t" id="t1">Thursdays, 15:00</span></div>
+  <div class="row"><span class="k">Pupils attending</span><span class="t" id="t2">24 of 90 Grade 7 pupils</span></div>
+  <div class="row"><span class="k">Recorded</span><span class="t" id="t3">Attendance only</span></div>
+  <table>
+    <tr><th>Session</th><th>Present</th></tr>
+    <tr><td><span class="tick"></span>12 Sept</td><td>19</td></tr>
+    <tr><td><span class="tick"></span>19 Sept</td><td>22</td></tr>
+    <tr><td><span class="tick"></span>26 Sept</td><td>17</td></tr>
+    <tr><td><span class="tick"></span>3 Oct</td><td>21</td></tr>
+  </table>
+</div>
+
+<svg id="wires"></svg>
+
+<div id="fix" class="card">
+  <div class="item"><div class="dot ok" data-i="ok"></div><div><span class="old">The reading club met every Thursday.</span></div></div>
+  <div class="item"><div class="dot warn" data-i="warn"></div><div><span class="old strike">Most Grade 7 pupils joined.</span><div class="new warn">24 of 90 Grade 7 pupils joined.</div></div></div>
+  <div class="item"><div class="dot bad" data-i="bad"></div><div><span class="old strike">It doubled pupils’ reading scores.</span><div class="new bad">Did scores improve? We don’t know yet.</div></div></div>
+</div>
+
+<div id="slide" class="card">
+  <h1>Our reading club</h1>
+  <div class="sub">September – November 2026</div>
+  <ul>
+    <li>Met every Thursday</li>
+    <li>24 of 90 Grade 7 pupils joined</li>
+    <li>Did reading scores improve? <b>We don’t know yet</b> — the club only recorded attendance.</li>
+  </ul>
+  <div class="src">Source: Reading Club attendance record, Sept–Nov 2026</div>
+</div>
+
+<script>
+const ICON = {
+  ok:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><path d="M12 5.5v8"/><circle cx="12" cy="18.5" r=".6" fill="#fff"/></svg>',
+  bad:'<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>'
+};
+document.querySelectorAll('[data-i]').forEach(d=>d.innerHTML=ICON[d.dataset.i]);
+
+// Build AI text with word spans for streaming
+const claims = ["The reading club met every Thursday.","Most Grade 7 pupils joined.","It doubled pupils’ reading scores."];
+const aitext = document.getElementById('aitext');
+let wi = 0;
+claims.forEach((c,i)=>{
+  const span = document.createElement('span'); span.className='c'; span.id='c'+(i+1);
+  c.split(' ').forEach((w,j,arr)=>{
+    const ws=document.createElement('span'); ws.className='w'; ws.textContent=w;
+    ws.dataset.d = wi++; span.appendChild(ws);
+    if(j<arr.length-1) span.appendChild(document.createTextNode(' '));
+  });
+  span.style.transitionDelay = (i*0.35)+'s';
+  aitext.appendChild(span);
+  if(i<claims.length-1) aitext.appendChild(document.createTextNode(' '));
+});
+const words=[...aitext.querySelectorAll('.w')];
+
+const LINKS = [
+  {from:'c1', to:'t1', kind:'ok',   beat:4},
+  {from:'c2', to:'t2', kind:'warn', beat:5},
+  {from:'c3', to:'t3', kind:'bad',  beat:6},
+];
+const COLOR = {ok:'#1f9d55', warn:'#d98a06', bad:'#d93b3b'};
+const MAX = 8;
+let beat = 0;
+const started = {};   // link index -> start time
+
+const wires = document.getElementById('wires');
+const NS='http://www.w3.org/2000/svg';
+LINKS.forEach((L,i)=>{
+  const g=document.createElementNS(NS,'g'); g.id='g'+i;
+  const p=document.createElementNS(NS,'path');
+  p.setAttribute('fill','none'); p.setAttribute('stroke-linecap','round');
+  const a=document.createElementNS(NS,'circle'); const b=document.createElementNS(NS,'circle');
+  const badge=document.createElementNS(NS,'g');
+  const bc=document.createElementNS(NS,'circle');
+  const fo=document.createElementNS(NS,'foreignObject');
+  fo.innerHTML='<div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;display:grid;place-items:center">'+ICON[L.kind]+'</div>';
+  badge.append(bc,fo);
+  g.append(p,a,b,badge); wires.appendChild(g);
+  L.el={g,p,a,b,badge,bc,fo};
+});
+
+function render(dir){
+  const b=document.body;
+  b.className = 's'+beat;
+  if(dir<0) { b.classList.add('instant'); requestAnimationFrame(()=>requestAnimationFrame(()=>b.classList.remove('instant'))); }
+  // streaming text
+  const ai=document.getElementById('ai');
+  if(beat>=1){
+    ai.classList.add('shown');
+    words.forEach(w=>w.style.transitionDelay = (dir>0 && beat===1) ? (w.dataset.d*0.07+0.35)+'s' : '0s');
+  } else ai.classList.remove('shown');
+  ai.classList.toggle('hl', beat>=2);
+  // verdict tints
+  LINKS.forEach((L,i)=>{
+    const on = beat>=L.beat && beat<=6;
+    if(on){ if(started[i]===undefined) started[i] = dir>0 && beat===L.beat ? performance.now() : -1e9; }
+    else delete started[i];
+  });
+}
+
+function prog(i,now){
+  if(started[i]===undefined) return null;
+  return Math.max(0,(now-started[i])/1000);
+}
+
+function tick(now){
+  LINKS.forEach((L,i)=>{
+    const E=L.el; const t=prog(i,now);
+    const cEl=document.getElementById(L.from), tEl=document.getElementById(L.to);
+    if(t===null){ E.g.style.opacity=0; cEl.classList.remove(L.kind); tEl.classList.remove(L.kind); return; }
+    E.g.style.opacity=1;
+    const r1=cEl.getBoundingClientRect(), r2=tEl.getBoundingClientRect();
+    // claim: use last line box end
+    const rects=cEl.getClientRects(); const last=rects[rects.length-1];
+    const aiR=document.getElementById('ai').getBoundingClientRect();
+    const x1=aiR.right-window.innerWidth*0.012, y1=last.top+last.height/2;
+    const x2=r2.left-6, y2=r2.top+r2.height/2;
+    const dx=(x2-x1)*0.5;
+    const d=`M${x1},${y1} C${x1+dx},${y1} ${x2-dx},${y2} ${x2},${y2}`;
+    E.p.setAttribute('d',d);
+    const len=E.p.getTotalLength();
+    const draw=Math.min(1,t/0.8); const ed=1-Math.pow(1-draw,3);
+    const resolved = t>0.85;
+    const col = resolved ? COLOR[L.kind] : '#b9b9b2';
+    const sw = window.innerWidth*0.0019;
+    E.p.setAttribute('stroke',col); E.p.setAttribute('stroke-width',sw);
+    E.p.style.transition='stroke .4s';
+    E.p.setAttribute('stroke-dasharray',len); E.p.setAttribute('stroke-dashoffset',len*(1-ed));
+    const rr=window.innerWidth*0.0035;
+    [[E.a,x1,y1,1],[E.b,x2,y2,ed>=0.99?1:0]].forEach(([c,x,y,o])=>{
+      c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',rr);c.setAttribute('fill',col);c.style.opacity=o;});
+    // badge
+    const m=E.p.getPointAtLength(len/2);
+    const R=window.innerWidth*0.017;
+    const s = resolved ? Math.min(1, (t-0.85)/0.25) : 0;
+    const sc = s<1 ? (1-Math.pow(1-s,3))*1.08 - (s>0.8?(s-0.8)*0.4:0) : 1;
+    E.bc.setAttribute('cx',m.x);E.bc.setAttribute('cy',m.y);E.bc.setAttribute('r',R);E.bc.setAttribute('fill',COLOR[L.kind]);
+    E.bc.setAttribute('stroke','#fff');E.bc.setAttribute('stroke-width',window.innerWidth*0.003);
+    E.fo.setAttribute('x',m.x-R*0.55);E.fo.setAttribute('y',m.y-R*0.55);E.fo.setAttribute('width',R*1.1);E.fo.setAttribute('height',R*1.1);
+    E.badge.setAttribute('transform',`translate(${m.x} ${m.y}) scale(${sc}) translate(${-m.x} ${-m.y})`);
+    E.badge.style.opacity = s>0?1:0;
+    cEl.classList.toggle(L.kind, resolved); tEl.classList.toggle(L.kind, resolved);
+  });
+  // hide wires when record leaves
+  wires.style.opacity = (beat>=4 && beat<=6)?1:0;
+  requestAnimationFrame(tick);
+}
+wires.style.transition='opacity .4s';
+
+function go(d){
+  const n=Math.max(0,Math.min(MAX,beat+d));
+  if(n===beat) return;
+  beat=n; render(d);
+}
+window.addEventListener('mousedown',e=>{ if(e.button===0) go(1); else if(e.button===2) go(-1); });
+window.addEventListener('contextmenu',e=>e.preventDefault());
+window.addEventListener('keydown',e=>{
+  if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();go(1);}
+  if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();go(-1);}
+});
+let idleT; window.addEventListener('mousemove',()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>document.body.classList.add('idle'),1500);});
+
+render(0);
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>
