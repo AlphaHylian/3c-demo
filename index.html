@@ -22,9 +22,9 @@
     transition:left .9s var(--ease),opacity .6s var(--ease),transform .9s var(--ease)}
 
   /* AI answer */
-  #ai{left:50%;width:37vw;padding:2.6vw 2.8vw;transform:translate(-50%,-50%) translateY(1.5vw);opacity:0}
+  #ai{left:50%;width:41vw;padding:2.6vw 2.8vw;transform:translate(-50%,-50%) translateY(1.5vw);opacity:0}
   .s1 #ai,.s2 #ai{opacity:1;transform:translate(-50%,-50%)}
-  .s3 #ai,.s4 #ai,.s5 #ai,.s6 #ai{opacity:1;left:24%;transform:translate(-50%,-50%)}
+  .s3 #ai,.s4 #ai,.s5 #ai,.s6 #ai{opacity:1;left:25.5%;transform:translate(-50%,-50%)}
   .s7 #ai,.s8 #ai{opacity:0;left:50%;transform:translate(-50%,-50%) scale(.97)}
   .avatar{width:2.4vw;height:2.4vw;border-radius:50%;background:var(--ink);display:grid;place-items:center;margin-bottom:1.4vw}
   .avatar svg{width:1.3vw;height:1.3vw}
@@ -41,7 +41,7 @@
   .c.bad{background-image:linear-gradient(var(--badbg),var(--badbg))}
 
   /* Record */
-  #rec{left:77%;width:30vw;padding:2.4vw 2.6vw;opacity:0;transform:translate(-40%,-50%)}
+  #rec{left:78%;width:30vw;padding:2.4vw 2.6vw;opacity:0;transform:translate(-40%,-50%)}
   .s3 #rec,.s4 #rec,.s5 #rec,.s6 #rec{opacity:1;transform:translate(-50%,-50%)}
   .doc-h{display:flex;align-items:center;gap:.9vw;padding-bottom:1.4vw;border-bottom:1px solid var(--line);margin-bottom:1.3vw}
   .doc-ic{width:2.4vw;height:2.4vw;border-radius:.6vw;background:#eef0f4;display:grid;place-items:center}
@@ -94,9 +94,80 @@
   @keyframes up{from{opacity:0;transform:translateY(.8vw)}to{opacity:1;transform:none}}
 
   .instant, .instant *{transition:none!important;animation:none!important}
+
+  /* Pitch scenes */
+  .scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .6s var(--ease)}
+  .scene.on{opacity:1}
+  [data-at]{opacity:0;transform:translateY(1vw);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  [data-at].in{opacity:1;transform:none}
+  .lead{font-size:2vw;color:var(--muted);margin-bottom:1.6vw}
+  .big{font-size:5vw;font-weight:700;letter-spacing:-.03em;line-height:1.12;text-align:center}
+  .big.red{color:var(--bad)}
+  .three{display:flex;gap:2vw;margin-top:.5vw}
+  .tile{width:24vw;background:var(--card);border-radius:1.4vw;padding:2.4vw 2.2vw;
+    box-shadow:0 .2vw .6vw rgba(0,0,0,.04),0 1.6vw 4vw rgba(0,0,0,.07)}
+  .num{width:2.6vw;height:2.6vw;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;
+    font-size:1.2vw;font-weight:600;margin-bottom:1.4vw}
+  .tile h3{font-size:2.4vw;font-weight:700;letter-spacing:-.02em;margin-bottom:.7vw}
+  .tile p{font-size:1.35vw;line-height:1.5;color:#4a4a51}
+  .tile.ok .num{background:var(--ok)} .tile.warn .num{background:var(--warn)} .tile.bad .num{background:var(--bad)}
+  .foot{font-size:1.3vw;color:var(--muted);margin-top:2.4vw}
+  .signs{display:flex;flex-direction:column;gap:1.4vw;width:56vw}
+  .sign{display:flex;align-items:center;gap:1.6vw;background:var(--card);border-radius:1.2vw;padding:1.6vw 2vw;
+    box-shadow:0 .2vw .6vw rgba(0,0,0,.04),0 1.2vw 3vw rgba(0,0,0,.06);font-size:1.9vw;font-weight:500}
+  .sign .ar{flex:none;width:3vw;height:3vw;border-radius:50%;background:var(--okbg);display:grid;place-items:center}
+  .sign .ar svg{width:1.5vw;height:1.5vw}
+  .close{display:flex;gap:3vw;font-size:6vw;font-weight:700;letter-spacing:-.03em}
+  .close span:nth-child(1){color:var(--ink)} .close span:nth-child(2){color:var(--ink)} .close span:nth-child(3){color:var(--ink)}
+  .close i{font-style:normal;color:var(--muted)}
+
+  /* 3C step indicator during demo */
+  #steps{position:absolute;top:4vh;left:50%;transform:translateX(-50%);display:flex;gap:2.2vw;font-size:1.15vw;
+    font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#c4c4bd;opacity:0;transition:opacity .5s}
+  #steps.on{opacity:1}
+  #steps span{transition:color .4s}
+  #steps span.cur{color:var(--ink)}
 </style>
 </head>
 <body class="s0">
+
+<div class="scene" id="sc-problem">
+  <div class="lead" data-at="1">When a high school student uses an AI answer…</div>
+  <div class="big" data-at="2">the AI sounds certain,</div>
+  <div class="big red" data-at="3">even when no evidence supports it.</div>
+</div>
+
+<div class="scene" id="sc-3c">
+  <div class="three">
+    <div class="tile" data-at="1"><div class="num">1</div><h3>Claim</h3><p>Pick out exactly what the AI is saying.</p></div>
+    <div class="tile" data-at="2"><div class="num">2</div><h3>Check</h3><p>Find it in a real source. Does the source actually show it?</p></div>
+    <div class="tile" data-at="3"><div class="num">3</div><h3>Correct</h3><p>Keep it, shrink it, or say “we don’t know yet.”</p></div>
+  </div>
+</div>
+
+<div id="steps"><span>Claim</span><span>Check</span><span>Correct</span></div>
+
+<div class="scene" id="sc-who">
+  <div class="three">
+    <div class="tile" data-at="1"><div class="num">1</div><h3>Teachers</h3><p>introduce 3C in the first lesson of a project, using one real AI claim.</p></div>
+    <div class="tile" data-at="2"><div class="num">2</div><h3>Students</h3><p>run 3C on every AI claim before it goes into their work.</p></div>
+    <div class="tile" data-at="3"><div class="num">3</div><h3>Every project</h3><p>Repeat it until checking becomes a habit.</p></div>
+  </div>
+  <div class="foot" data-at="4">Pilot: one social studies class at a partner school · university partners observe</div>
+</div>
+
+<div class="scene" id="sc-signs">
+  <div class="signs">
+    <div class="sign" data-at="1"><div class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="#1f9d55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></div>More claims in students’ work have a source</div>
+    <div class="sign" data-at="2"><div class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="#1f9d55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></div>More honest “we don’t know yet” lines</div>
+    <div class="sign" data-at="3"><div class="ar"><svg viewBox="0 0 24 24" fill="none" stroke="#1f9d55" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></div>More students catch a false claim the teacher planted</div>
+  </div>
+</div>
+
+<div class="scene" id="sc-close">
+  <div class="close"><span data-at="1">Claim.</span><span data-at="2">Check.</span><span data-at="3">Correct.</span></div>
+</div>
 
 <div id="ai" class="card">
   <div class="avatar"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/></svg></div>
@@ -109,7 +180,7 @@
     <div><b>Reading Club</b><span>School record · Sept–Nov 2026</span></div>
   </div>
   <div class="row"><span class="k">Meets</span><span class="t" id="t1">Thursdays, 15:00</span></div>
-  <div class="row"><span class="k">Pupils attending</span><span class="t" id="t2">24 of 90 Grade 7 pupils</span></div>
+  <div class="row"><span class="k">Students attending</span><span class="t" id="t2">24 of 90 Grade 10 students</span></div>
   <div class="row"><span class="k">Recorded</span><span class="t" id="t3">Attendance only</span></div>
   <table>
     <tr><th>Session</th><th>Present</th></tr>
@@ -124,8 +195,8 @@
 
 <div id="fix" class="card">
   <div class="item"><div class="dot ok" data-i="ok"></div><div><span class="old">The reading club met every Thursday.</span></div></div>
-  <div class="item"><div class="dot warn" data-i="warn"></div><div><span class="old strike">Most Grade 7 pupils joined.</span><div class="new warn">24 of 90 Grade 7 pupils joined.</div></div></div>
-  <div class="item"><div class="dot bad" data-i="bad"></div><div><span class="old strike">It doubled pupils’ reading scores.</span><div class="new bad">Did scores improve? We don’t know yet.</div></div></div>
+  <div class="item"><div class="dot warn" data-i="warn"></div><div><span class="old strike">Most Grade 10 students joined.</span><div class="new warn">24 of 90 Grade 10 students joined.</div></div></div>
+  <div class="item"><div class="dot bad" data-i="bad"></div><div><span class="old strike">It doubled students’ reading scores.</span><div class="new bad">Did scores improve? We don’t know yet.</div></div></div>
 </div>
 
 <div id="slide" class="card">
@@ -133,7 +204,7 @@
   <div class="sub">September – November 2026</div>
   <ul>
     <li>Met every Thursday</li>
-    <li>24 of 90 Grade 7 pupils joined</li>
+    <li>24 of 90 Grade 10 students joined</li>
     <li>Did reading scores improve? <b>We don’t know yet</b> — the club only recorded attendance.</li>
   </ul>
   <div class="src">Source: Reading Club attendance record, Sept–Nov 2026</div>
@@ -148,7 +219,7 @@ const ICON = {
 document.querySelectorAll('[data-i]').forEach(d=>d.innerHTML=ICON[d.dataset.i]);
 
 // Build AI text with word spans for streaming
-const claims = ["The reading club met every Thursday.","Most Grade 7 pupils joined.","It doubled pupils’ reading scores."];
+const claims = ["The reading club met every Thursday.","Most Grade 10 students joined.","It doubled students’ reading scores."];
 const aitext = document.getElementById('aitext');
 let wi = 0;
 claims.forEach((c,i)=>{
@@ -170,8 +241,11 @@ const LINKS = [
   {from:'c3', to:'t3', kind:'bad',  beat:6},
 ];
 const COLOR = {ok:'#1f9d55', warn:'#d98a06', bad:'#d93b3b'};
-const MAX = 8;
 let beat = 0;
+const SEQ=[{sc:null,n:0}];
+const add=(sc,k)=>{for(let i=1;i<=k;i++)SEQ.push({sc,n:i});};
+add('sc-problem',3); add('sc-3c',3); add('demo',8); add('sc-who',4); add('sc-signs',3); add('sc-close',3);
+let g=0;
 const started = {};   // link index -> start time
 
 const wires = document.getElementById('wires');
@@ -259,9 +333,23 @@ function tick(now){
 wires.style.transition='opacity .4s';
 
 function go(d){
-  const n=Math.max(0,Math.min(MAX,beat+d));
-  if(n===beat) return;
-  beat=n; render(d);
+  const n=Math.max(0,Math.min(SEQ.length-1,g+d));
+  if(n===g) return;
+  g=n; const e=SEQ[g];
+  document.querySelectorAll('.scene').forEach(sc=>{
+    const on = sc.id===e.sc; sc.classList.toggle('on',on);
+    sc.querySelectorAll('[data-at]').forEach(el=>{
+      const vis = on && +el.dataset.at<=e.n;
+      if(!on) return; // keep state while fading out
+      el.classList.toggle('in',vis);
+    });
+  });
+  const st=document.getElementById('steps');
+  st.classList.toggle('on', e.sc==='demo');
+  const cur = e.sc!=='demo'?-1 : e.n<=2?0 : e.n<=6?1 : 2;
+  [...st.children].forEach((x,i)=>x.classList.toggle('cur',i===cur));
+  beat = e.sc==='demo'? e.n : 0;
+  render(d);
 }
 window.addEventListener('mousedown',e=>{ if(e.button===0) go(1); else if(e.button===2) go(-1); });
 window.addEventListener('contextmenu',e=>e.preventDefault());
